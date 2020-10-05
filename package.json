@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "[CPE327 Final Project]Warehouse Management System-Backend part",
   "main": "index.js",
+  "engines": {
+    "node": "14.13.x"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
