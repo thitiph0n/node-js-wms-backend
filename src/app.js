@@ -7,9 +7,12 @@ app.use(cors());
 
 app.use(express.json());
 
+app.use('/api/', require('./routes/authRouter'));
+app.use('/api/users', require('./routes/usersRouter'));
+
 app.all('*', (req, res) => {
   res.status(404).send({
-    message: 'Not found',
+    errors: [{ message: 'Not found' }],
   });
 });
 
