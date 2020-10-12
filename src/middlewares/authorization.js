@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-function authorization(req, res, next) {
+const authorization = (req, res, next) => {
   //Get auth header value
   const bearerHeader = req.headers['authorization'];
   //Check bearer
@@ -30,6 +30,6 @@ function authorization(req, res, next) {
   } else {
     res.sendStatus(401);
   }
-}
+};
 
 module.exports = authorization;
