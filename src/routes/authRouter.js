@@ -15,7 +15,7 @@ router.post('/login', async (req, res) => {
   //find user_id
   const response = await db.query(
     'SELECT user_id,password,first_name,position FROM public."user" WHERE user_id=$1',
-    [req.body.user_id]
+    [req.body.userId]
   );
 
   if (response.rowCount === 0) {
@@ -38,8 +38,9 @@ router.post('/login', async (req, res) => {
 
   //sign jwt
   const payload = {
-    user_id: req.body.user_id,
-    firstname: response.rows[0].first_name,
+    userId: req.body.userId,
+    iat: Date.now(),
+    firstName: response.rows[0].first_name,
     position: response.rows[0].position,
   };
   const key = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
