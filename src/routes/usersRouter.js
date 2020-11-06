@@ -77,8 +77,21 @@ router.get('/', async (req, res) => {
     const { rows } = await db.query('SELECT * FROM public.user');
     //remove password element
     const response = rows.map((row) => {
-      delete row.password;
-      return row;
+      return {
+        userId: row.user_id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        position: row.position,
+        address: row.address,
+        zipCode: row.zip_code,
+        country: row.country,
+        city: row.city,
+        phone: row.phone,
+        warehouseId: row.warehouse_id,
+        dob: row.dob,
+        gender: row.gender,
+        email: row.email,
+      };
     });
 
     return res.send({ payload: response });
@@ -100,8 +113,21 @@ router.get('/:userId', async (req, res) => {
     ]);
     //remove password element
     const response = rows.map((row) => {
-      delete row.password;
-      return row;
+      return {
+        userId: row.user_id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        position: row.position,
+        address: row.address,
+        zipCode: row.zip_code,
+        country: row.country,
+        city: row.city,
+        phone: row.phone,
+        warehouseId: row.warehouse_id,
+        dob: row.dob,
+        gender: row.gender,
+        email: row.email,
+      };
     });
 
     return res.send({ payload: response });

@@ -17,7 +17,7 @@ const authorization = (req, res, next) => {
         //send authData
         req.authData = authData;
         //check expire
-        if (Date.now() - authData.iat <= 1800000) {
+        if (Date.now() - authData.iat <= 43200000) {
           //Next middleware
           next();
         } else {
