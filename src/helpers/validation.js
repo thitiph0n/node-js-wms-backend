@@ -68,6 +68,20 @@ const loginValidation = (data) => {
   return schema.validate(data);
 };
 
+const changePassValidation = (data) => {
+  const schema = Joi.object({
+    userId: Joi.string()
+      .length(5)
+      .pattern(/^[0-9]+$/, 'numbers')
+      .required(),
+    oldPassword: Joi.string().min(6).max(24).required(),
+    newPassword: Joi.string().min(6).max(24).required(),
+  }).options({ abortEarly: false });
+
+  return schema.validate(data);
+};
+
 module.exports.newUserValidation = newUserValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.editUserValidation = editUserValidation;
+module.exports.changePassValidation = changePassValidation;

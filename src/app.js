@@ -14,6 +14,8 @@ app.use('/api/', require('./routes/authRouter'));
 
 app.use('/api/users', require('./routes/usersRouter'));
 
+app.use('/api/parcels', require('./routes/parcelsRouter'));
+
 app.get('/', (req, res) => {
   return res.send({
     message: 'Welcome to WMS backend',

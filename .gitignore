@@ -6,4 +6,5 @@ jspm_packages/
 .env
 .env.test
 
-
+# Database data
+database/db_data
