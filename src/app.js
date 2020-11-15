@@ -19,7 +19,7 @@ app.use('/api/parcels', require('./routes/parcelsRouter'));
 app.get('/', (req, res) => {
   return res.send({
     message: 'Welcome to WMS backend',
-    version: 0.1,
+    version: 0.2,
     status: 'Up and Running',
   });
 });

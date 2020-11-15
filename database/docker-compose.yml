@@ -21,6 +21,8 @@ services:
       - db
     image: dpage/pgadmin4
     restart: always
+    volumes:
+      - ./pg_admin:/var/lib/pgadmin
     ports:
       - '8080:80'
     environment:
@@ -34,3 +36,4 @@ networks:
 
 volumes:
   db_data:
+  pg_admin:

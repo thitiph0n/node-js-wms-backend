@@ -8,3 +8,4 @@ jspm_packages/
 
 # Database data
 database/db_data
+database/pg_admin
