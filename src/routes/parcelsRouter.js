@@ -143,10 +143,77 @@ router.post('/', async (req, res) => {
 });
 
 // Get all parcel
-router.get('/', async (req, res) => {});
+router.get('/', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM public.parcel');
+
+    const response = rows.map((row) => {
+      return {
+        parcelId: row.parcel_id,
+        senderId: row.senderId,
+        fromWarehouseId: row.from_warehouse_id,
+        toWarehouseId: row.to_warehouse_id,
+        width: row.width,
+        length: row.length,
+        height: row.height,
+        weight: row.weight,
+        optional: row.optional,
+        receivedDate: row.received_date,
+        exportedDate: row.exported_date,
+        latestStatus: row.latest_status,
+        labelPath: row.label_path,
+        location: row.location,
+      };
+    });
+
+    return res.send({ payload: response });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      errors: [{ message: 'Database error' }],
+    });
+  }
+});
 
 // Get parcel by Id
-router.get('/:parcelId', async (req, res) => {});
+router.get('/:parcelId', async (req, res) => {
+  try {
+    const {
+      rows,
+    } = await db.query('SELECT * FROM public.parcel WHERE parcel_id = $1', [
+      req.params.parcelId,
+    ]);
+
+    const response = rows.map((row) => {
+      return {
+        parcelId: row.parcel_id,
+        senderId: row.senderId,
+        fromWarehouseId: row.from_warehouse_id,
+        toWarehouseId: row.to_warehouse_id,
+        width: row.width,
+        length: row.length,
+        height: row.height,
+        weight: row.weight,
+        optional: row.optional,
+        receivedDate: row.received_date,
+        exportedDate: row.exported_date,
+        latestStatus: row.latest_status,
+        labelPath: row.label_path,
+        location: row.location,
+      };
+    });
+
+    return res.send({ payload: response });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      errors: [{ message: 'Database error' }],
+    });
+  }
+});
+
+//Update status (stored,exported)
+router.put('/status', async (req, res) => {});
 
 // Edit parcel
 router.put('/', async (req, res) => {});
