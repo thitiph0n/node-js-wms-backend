@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
       .send({ errors: [{ message: 'User already exists' }] });
   }
 
-  const password = await bcrypt(`FIRST_TIME ${req.body.phone}`, 10);
+  const password = `FIRST_TIME ${req.body.phone}`;
 
   //Store in database
 
