@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const db = require('../helpers/db');
+const bcrypt = require('bcrypt');
 
 const authorization = require('../middleware/authorization');
 const allowAccess = require('../middleware/allowAccess');
@@ -33,7 +34,10 @@ router.post('/', async (req, res) => {
       .send({ errors: [{ message: 'User already exists' }] });
   }
 
+  const password = await bcrypt(`FIRST_TIME ${req.body.phone}`, 10);
+
   //Store in database
+
   try {
     await db.query(
       'INSERT INTO public."user"(\
@@ -43,7 +47,7 @@ router.post('/', async (req, res) => {
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);',
       [
         req.body.userId,
-        req.body.phone,
+        password,
         req.body.firstName,
         req.body.lastName,
         req.body.position,

@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
   }
 
   //Check unsecured password
-  if (req.body.password === response.rows[0].phone) {
+  if (`FIRST_TIME ${req.body.password}` === response.rows[0].password) {
     return res
       .status(426)
       .send({ errors: [{ message: 'Unsecured! change password required' }] });
@@ -89,7 +89,10 @@ router.post('/change-password', async (req, res) => {
   );
 
   //Check old password
-  if (!validPass && req.body.oldPassword !== response.rows[0].phone) {
+  if (
+    !validPass &&
+    `FIRST_TIME ${req.body.oldPassword}` !== response.rows[0].password
+  ) {
     return res
       .status(400)
       .send({ errors: [{ message: 'Wrong userID or password' }] });
