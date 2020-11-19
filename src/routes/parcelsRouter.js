@@ -50,15 +50,15 @@ router.post('/', async (req, res) => {
   // Generate parcelId
   const parcelId = genParcelId(size, runningNum);
 
-  // Calculate location
-  const { location, location_id } = await parcelLocator(
-    size,
-    req.body.toWarehouseId,
-    req.body.fromWarehouseId
-  );
-
-  // Insert into database
   try {
+    // Calculate location
+    const { location, location_id } = await parcelLocator(
+      size,
+      req.body.toWarehouseId,
+      req.body.fromWarehouseId
+    );
+
+    // Insert into database
     await db.query(
       `WITH ins_parcel AS (INSERT INTO public."parcel"(\
         parcel_id, sender_id, from_warehouse_id, to_warehouse_id, weight, height,\
@@ -91,21 +91,21 @@ router.post('/', async (req, res) => {
     });
   }
 
-  // Generate parcel label
-  const url = await genParcelLabel({
-    parcelId,
-    senderId: req.body.senderId,
-    width: req.body.width,
-    height: req.body.height,
-    length: req.body.length,
-    weight: req.body.weight,
-    from: req.body.fromWarehouseId,
-    to: req.body.toWarehouseId,
-    location,
-  });
-
-  // Update labelPath and response
   try {
+    // Generate parcel label
+    const url = await genParcelLabel({
+      parcelId,
+      senderId: req.body.senderId,
+      width: req.body.width,
+      height: req.body.height,
+      length: req.body.length,
+      weight: req.body.weight,
+      from: req.body.fromWarehouseId,
+      to: req.body.toWarehouseId,
+      location,
+    });
+
+    // Update labelPath and response
     const { rows: resRows } = await db.query(
       `WITH update AS (UPDATE public.parcel
         SET label_path=$1

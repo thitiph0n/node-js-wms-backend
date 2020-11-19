@@ -89,10 +89,10 @@ const newParcelValidation = (data) => {
     fromWarehouseId: Joi.string().length(5).required(),
     toWarehouseId: Joi.string().length(5).required(),
     weight: Joi.number().required(),
-    height: Joi.number().required(),
-    width: Joi.number().required(),
-    length: Joi.number().required(),
-    optional: Joi.string(),
+    height: Joi.number().integer().required(),
+    width: Joi.number().integer().required(),
+    length: Joi.number().integer().required(),
+    optional: Joi.string().allow(''),
   }).options({ abortEarly: false });
 
   return schema.validate(data);
