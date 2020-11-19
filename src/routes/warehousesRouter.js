@@ -17,10 +17,10 @@ router.use(authorization);
 //Add new warehouse
 router.post('/', allowAccess(['admin']), async (req, res) => {
   // Validation
-  const { error } = newWarehouseValidation(req.body);
-  if (error) {
-    return res.status(400).send({ errors: error.details });
-  }
+  // const { error } = newWarehouseValidation(req.body);
+  // if (error) {
+  //   return res.status(400).send({ errors: error.details });
+  // }
 
   // Generate warehouse Id
   let warehouseId;
@@ -68,12 +68,10 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
     // Create warehouse location plan
     await genLocation(resRows[0].warehouse_id, resRows[0].type);
 
-    return res
-      .status(201)
-      .send({
-        success: `Warehouse #${resRows[0].warehouse_id} created`,
-        payload: [{ warehouseId: resRows[0].warehouse_id }],
-      });
+    return res.status(201).send({
+      success: `Warehouse #${resRows[0].warehouse_id} created`,
+      payload: [{ warehouseId: resRows[0].warehouse_id }],
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).send({
@@ -149,10 +147,10 @@ router.get('/:warehouseId', async (req, res) => {
 //Edit user by warehouseId
 router.put('/:warehouseId', allowAccess(['admin']), async (req, res) => {
   //Validation
-  const { error } = editWarehouseValidation(req.body);
-  if (error) {
-    return res.status(400).send({ errors: error.details });
-  }
+  // const { error } = editWarehouseValidation(req.body);
+  // if (error) {
+  //   return res.status(400).send({ errors: error.details });
+  // }
 
   const address = {
     address: req.body.address,
