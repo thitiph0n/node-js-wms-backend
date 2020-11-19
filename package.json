@@ -1,6 +1,6 @@
 {
   "name": "node-js-wms-backend",
-  "version": "1.0.1",
+  "version": "1.3.0",
   "description": "[CPE327 Final Project]Warehouse Management System-Backend part",
   "main": "index.js",
   "type": "commonjs",

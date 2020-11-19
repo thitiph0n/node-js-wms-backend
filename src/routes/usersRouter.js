@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const db = require('../helpers/db');
-const bcrypt = require('bcrypt');
 
 const authorization = require('../middleware/authorization');
 const allowAccess = require('../middleware/allowAccess');

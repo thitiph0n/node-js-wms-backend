@@ -16,10 +16,12 @@ app.use('/api/users', require('./routes/usersRouter'));
 
 app.use('/api/parcels', require('./routes/parcelsRouter'));
 
+app.use('/api/warehouses', require('./routes/warehousesRouter'));
+
 app.get('/', (req, res) => {
   return res.send({
     message: 'Welcome to WMS backend',
-    version: 0.2,
+    version: 0.3,
     status: 'Up and Running',
   });
 });
