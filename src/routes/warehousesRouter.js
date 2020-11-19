@@ -5,6 +5,7 @@ const authorization = require('../middleware/authorization');
 const allowAccess = require('../middleware/allowAccess');
 
 const { genLocation } = require('../services/genLocation');
+const { genWarehouseId } = require('../services/genWarehouseId');
 
 const {
   newWarehouseValidation,
@@ -15,13 +16,29 @@ router.use(authorization);
 
 //Add new warehouse
 router.post('/', allowAccess(['admin']), async (req, res) => {
-  //Validation
+  // Validation
   const { error } = newWarehouseValidation(req.body);
   if (error) {
     return res.status(400).send({ errors: error.details });
   }
 
-  //Store in database
+  // Generate warehouse Id
+  let warehouseId;
+
+  try {
+    const { rows } = await db.query(
+      `SELECT count FROM public.counter WHERE counter_id ='warehouse';`
+    );
+
+    warehouseId = genWarehouseId(rows[0].count);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      errors: [{ message: error.message }],
+    });
+  }
+
+  // Store in database
   const address = {
     address: req.body.address,
     zipCode: req.body.zipCode,
@@ -32,11 +49,13 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
 
   try {
     const { rows: resRows } = await db.query(
-      `INSERT INTO public.warehouse(
+      `WITH ins AS (INSERT INTO public.warehouse(
       warehouse_id, name, address, phone, type, manager_id, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING warehouse_id, type;`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING warehouse_id, type),
+      pls_counter AS (UPDATE public.counter SET count = count + 1 WHERE
+      counter_id = 'warehouse') SELECT * FROM ins;`,
       [
-        req.body.warehouseId,
+        warehouseId,
         req.body.name,
         JSON.stringify(address),
         req.body.phone,
@@ -51,7 +70,10 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
 
     return res
       .status(201)
-      .send({ success: `Warehouse #${resRows[0].warehouse_id} created` });
+      .send({
+        success: `Warehouse #${resRows[0].warehouse_id} created`,
+        payload: [{ warehouseId: resRows[0].warehouse_id }],
+      });
   } catch (error) {
     console.error(error);
     return res.status(500).send({
