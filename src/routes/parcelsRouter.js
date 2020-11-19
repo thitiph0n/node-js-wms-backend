@@ -1,10 +1,14 @@
 const router = require('express').Router();
 const db = require('../helpers/db');
+const pool = db.pool;
 
 const authorization = require('../middleware/authorization');
 const allowAccess = require('../middleware/allowAccess');
 
-const { newParcelValidation } = require('../helpers/validation');
+const {
+  newParcelValidation,
+  editParcelValidation,
+} = require('../helpers/validation');
 
 const { genParcelId } = require('../services/genParcelId');
 const { sizeCalculator } = require('../services/sizeCalculator');
@@ -206,12 +210,107 @@ router.get('/:parcelId', async (req, res) => {
 });
 
 //Update status (stored,exported)
-router.put('/status', async (req, res) => {});
+router.put('/status', async (req, res) => {
+  if (!Array.isArray(req.body.parcels) || !req.body.status) {
+    return res.status(400).send({
+      errors: [{ message: 'status and array of parcelId are required!' }],
+    });
+  }
+
+  const client = await pool.connect();
+
+  const queryText =
+    req.body.status === 'exported'
+      ? `WITH ins_status AS (INSERT INTO public.parcel_status(
+    parcel_id, status, update_by, "time")
+    VALUES ($1, $2, $3, CURRENT_TIMESTAMP))
+    UPDATE public.parcel SET latest_status=$2 , exported_date=CURRENT_TIMESTAMP
+    WHERE parcel_id=$1;`
+      : `WITH ins_status AS (INSERT INTO public.parcel_status(
+      parcel_id, status, update_by, "time")
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP))
+      UPDATE public.parcel SET latest_status=$2
+      WHERE parcel_id=$1;`;
+
+  let dbError = null;
+
+  try {
+    await client.query('BEGIN');
+    await req.body.parcels.forEach((parcelId) => {
+      client
+        .query(queryText, [parcelId, req.body.status, req.body.updateBy])
+        .catch((e) => {
+          dbError = e;
+        });
+    });
+
+    if (dbError) {
+      throw dbError;
+    }
+
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+  } finally {
+    client.release();
+  }
+
+  if (dbError) {
+    return res.status(500).send({
+      errors: [{ message: dbError.message }],
+    });
+  }
+
+  return res.send({
+    success: `Updated parcels status successful`,
+  });
+});
 
 // Edit parcel
-router.put('/', async (req, res) => {});
+router.put('/:parcelId', async (req, res) => {
+  //Validation
+  const { error } = editParcelValidation(req.body);
+  if (error) {
+    return res.status(400).send({ errors: error.details });
+  }
+
+  try {
+    const { rows: resRows } = await db.query(
+      `UPDATE public.parcel
+    SET optional=$2
+    WHERE parcel_id = $1 RETURNING parcel_id;`,
+      [req.params.parcelId, req.body.optional]
+    );
+    return res.send({
+      success: `Update ${resRows[0].parcel_id} successful`,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      errors: [{ message: 'Database error' }],
+    });
+  }
+});
 
 // Delete parcel
-router.delete('/:parcelId', async (req, res) => {});
+router.delete('/:parcelId', async (req, res) => {
+  try {
+    const response = await db.query(
+      'DELETE FROM public.parcel WHERE parcel_id = $1',
+      [req.params.parcelId]
+    );
+    if (response.rowCount === 0) {
+      return res.send({
+        errors: [{ message: `${req.params.parcelId} not exist` }],
+      });
+    }
+    return res.send({ success: `Delete ${req.params.parcelId} successful` });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      errors: [{ message: 'Database error' }],
+    });
+  }
+});
 
 module.exports = router;

@@ -5,6 +5,7 @@ const pool = new Pool(poolConfig);
 
 module.exports = {
   async query(text, params) {
+    pool.connect();
     const res = await pool.query(text, params);
     return res;
   },
@@ -38,4 +39,5 @@ module.exports = {
     };
     return client;
   },
+  pool,
 };

@@ -98,6 +98,13 @@ const newParcelValidation = (data) => {
   return schema.validate(data);
 };
 
+// Edit parcel validation
+const editParcelValidation = (data) => {
+  const schema = Joi.object().options({ abortEarly: false });
+
+  return schema.validate(data);
+};
+
 // New warehouse validation
 const newWarehouseValidation = (data) => {
   const schema = Joi.object().options({ abortEarly: false });
@@ -117,5 +124,6 @@ module.exports.loginValidation = loginValidation;
 module.exports.editUserValidation = editUserValidation;
 module.exports.changePassValidation = changePassValidation;
 module.exports.newParcelValidation = newParcelValidation;
+module.exports.editParcelValidation = editParcelValidation;
 module.exports.newWarehouseValidation = newWarehouseValidation;
 module.exports.editWarehouseValidation = editWarehouseValidation;
