@@ -4,6 +4,8 @@ const db = require('../helpers/db');
 const authorization = require('../middleware/authorization');
 const allowAccess = require('../middleware/allowAccess');
 
+const { genLocation } = require('../services/genLocation');
+
 const {
   newWarehouseValidation,
   editWarehouseValidation,
@@ -20,7 +22,6 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
   }
 
   //Store in database
-
   const address = {
     address: req.body.address,
     zipCode: req.body.zipCode,
@@ -33,7 +34,7 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
     const { rows: resRows } = await db.query(
       `INSERT INTO public.warehouse(
       warehouse_id, name, address, phone, type, manager_id, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING warehouse_id;`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING warehouse_id, type;`,
       [
         req.body.warehouseId,
         req.body.name,
@@ -44,13 +45,17 @@ router.post('/', allowAccess(['admin']), async (req, res) => {
         req.body.status,
       ]
     );
+
+    // Create warehouse location plan
+    await genLocation(resRows[0].warehouse_id, resRows[0].type);
+
     return res
       .status(201)
       .send({ success: `Warehouse #${resRows[0].warehouse_id} created` });
   } catch (error) {
     console.error(error);
     return res.status(500).send({
-      errors: [{ message: 'Database error' }],
+      errors: [{ message: error.message }],
     });
   }
 });

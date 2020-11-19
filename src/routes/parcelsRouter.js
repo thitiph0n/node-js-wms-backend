@@ -84,14 +84,7 @@ router.post('/', async (req, res) => {
         size.cube,
       ]
     );
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send({
-      errors: [{ message: 'Database error' }],
-    });
-  }
 
-  try {
     // Generate parcel label
     const url = await genParcelLabel({
       parcelId,

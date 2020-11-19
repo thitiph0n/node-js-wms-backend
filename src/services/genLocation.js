@@ -3,9 +3,9 @@ const db = require('../helpers/db');
 module.exports.genLocation = async (warehouseId, type) => {
   let zones = [];
 
-  if (type === 1) {
+  if (type === '1') {
     zones = genCharArray('A', 'H');
-  } else if (type === 2) {
+  } else if (type === '2') {
     zones = genCharArray('A', 'J');
   } else {
     return -1;
@@ -38,9 +38,10 @@ module.exports.genLocation = async (warehouseId, type) => {
                             ,($1, $2, $3, 20);`,
         [warehouseId, zone, floor]
       );
-      console.log(warehouseId, zone, floor);
     }
   });
+
+  console.log('[Parcels] Generate ' + warehouseId + ' successful');
 };
 
 function genCharArray(charA, charZ) {
