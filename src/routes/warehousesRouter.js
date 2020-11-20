@@ -123,19 +123,83 @@ router.get('/:warehouseId', async (req, res) => {
       });
     }
 
-    const warehouseResponse = warehouseRows.map((row) => {
-      return {
-        warehouseId: row.warehouse_id,
-        name: row.name,
-        address: row.address,
-        phone: row.phone,
-        type: row.type,
-        managerId: row.manager_id,
-        status: row.status,
-      };
+    const warehouseResponse = {
+      warehouseId: warehouseRows[0].warehouse_id,
+      name: warehouseRows[0].name,
+      address: warehouseRows[0].address,
+      phone: warehouseRows[0].phone,
+      type: warehouseRows[0].type,
+      managerId: warehouseRows[0].manager_id,
+      status: warehouseRows[0].status,
+    };
+
+    const {
+      rows: staffRows,
+    } = await db.query(
+      'SELECT user_id,first_name,last_name,position FROM public.user WHERE warehouse_id = $1',
+      [req.params.warehouseId]
+    );
+
+    const { rows: spaceRows } = await db.query(
+      `SELECT location.warehouse_id,
+      SUM(location_parcel.cube) AS used_cube
+        FROM	location
+        JOIN 	location_parcel
+        ON location.id = location_parcel.location_id
+        WHERE location.warehouse_id = $1
+      GROUP BY location.warehouse_id`,
+      [req.params.warehouseId]
+    );
+
+    const { rows: numRows } = await db.query(
+      `SELECT latest_status AS status, COUNT(*) AS count FROM public.parcel
+      WHERE from_warehouse_id = $1
+      GROUP BY latest_status;`,
+      [req.params.warehouseId]
+    );
+
+    let all = 0,
+      pickedUp = 0,
+      stored = 0,
+      exported = 0;
+
+    numRows.forEach((row) => {
+      if (row.status === 'picked up') {
+        pickedUp = parseInt(row.count);
+      } else if (row.status === 'stored') {
+        stored = parseInt(row.count);
+      } else if (row.status === 'exported') {
+        exported = parseInt(row.count);
+      } else {
+        all = parseInt(row.count);
+      }
     });
 
-    return res.send({ payload: warehouseResponse });
+    all = all + pickedUp + stored + exported;
+
+    let cap_cube;
+    if (warehouseResponse.type === '1') {
+      cap_cube = 860160;
+    } else {
+      cap_cube = 1075200;
+    }
+
+    const usedSpace = ((spaceRows[0].used_cube / cap_cube) * 100).toFixed(3);
+
+    const analysisResponse = {
+      staffs: staffRows,
+      usedSpace,
+      numberOfParcels: {
+        all,
+        pickedUp,
+        stored,
+        exported,
+      },
+    };
+
+    return res.send({
+      payload: [{ ...warehouseResponse, ...analysisResponse }],
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).send({

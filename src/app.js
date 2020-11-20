@@ -18,6 +18,8 @@ app.use('/api/parcels', require('./routes/parcelsRouter'));
 
 app.use('/api/warehouses', require('./routes/warehousesRouter'));
 
+app.use('/api/search', require('./routes/searchRouter'));
+
 app.get('/', (req, res) => {
   return res.send({
     message: 'Welcome to WMS backend',
