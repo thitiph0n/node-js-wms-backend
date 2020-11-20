@@ -147,7 +147,7 @@ router.get('/', async (req, res) => {
     const response = rows.map((row) => {
       return {
         parcelId: row.parcel_id,
-        senderId: row.senderId,
+        senderId: row.sender_id,
         fromWarehouseId: row.from_warehouse_id,
         toWarehouseId: row.to_warehouse_id,
         width: row.width,
@@ -177,14 +177,19 @@ router.get('/:parcelId', async (req, res) => {
   try {
     const {
       rows,
-    } = await db.query('SELECT * FROM public.parcel WHERE parcel_id = $1', [
-      req.params.parcelId,
-    ]);
+    } = await db.query(
+      `SELECT * FROM public.parcel JOIN public.sender ON sender.sender_id = parcel.sender_id WHERE parcel.parcel_id = $1`,
+      [req.params.parcelId]
+    );
 
     const response = rows.map((row) => {
       return {
         parcelId: row.parcel_id,
-        senderId: row.senderId,
+        senderId: row.sender_id,
+        senderName: row.name,
+        senderAddress: row.address,
+        senderCountry: row.country,
+        senderPhone: row.phone,
         fromWarehouseId: row.from_warehouse_id,
         toWarehouseId: row.to_warehouse_id,
         width: row.width,
