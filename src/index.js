@@ -7,9 +7,13 @@ const { port } = require('./configs');
 const db = require('./helpers/db');
 
 async function start() {
-  const res = await db.testConnect();
-  if (res.rows) {
-    console.log('[DB]database connected!');
+  try {
+    const res = await db.testConnect();
+    if (res.rows) {
+      console.log('[DB]database connected!');
+    }
+  } catch (error) {
+    console.error(`[DB] ${error.message}`);
   }
 }
 

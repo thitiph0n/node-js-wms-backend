@@ -11,10 +11,8 @@ const {
 
 router.use(authorization);
 
-router.use(allowAccess(['admin']));
-
 //Add new user
-router.post('/', async (req, res) => {
+router.post('/', allowAccess(['admin']), async (req, res) => {
   //Validation
   const { error } = newUserValidation(req.body);
   if (error) {
@@ -71,7 +69,7 @@ router.post('/', async (req, res) => {
 });
 
 //Get all users
-router.get('/', async (req, res) => {
+router.get('/', allowAccess(['admin']), async (req, res) => {
   try {
     const { rows } = await db.query('SELECT * FROM public.user');
     //remove password element
@@ -139,7 +137,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 //Edit user by userId
-router.put('/:userId', async (req, res) => {
+router.put('/:userId', allowAccess(['admin']), async (req, res) => {
   //Validation
   const { error } = editUserValidation(req.body);
   if (error) {
@@ -177,7 +175,7 @@ router.put('/:userId', async (req, res) => {
 });
 
 //Delete user by userId
-router.delete('/:userId', async (req, res) => {
+router.delete('/:userId', allowAccess(['admin']), async (req, res) => {
   try {
     const response = await db.query(
       'DELETE FROM public.user WHERE user_id = $1',
