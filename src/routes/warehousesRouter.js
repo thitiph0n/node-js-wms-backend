@@ -7,21 +7,10 @@ const allowAccess = require('../middleware/allowAccess');
 const { genLocation } = require('../services/genLocation');
 const { genWarehouseId } = require('../services/genWarehouseId');
 
-const {
-  newWarehouseValidation,
-  editWarehouseValidation,
-} = require('../helpers/validation');
-
 router.use(authorization);
 
 //Add new warehouse
 router.post('/', allowAccess(['admin']), async (req, res) => {
-  // Validation
-  // const { error } = newWarehouseValidation(req.body);
-  // if (error) {
-  //   return res.status(400).send({ errors: error.details });
-  // }
-
   // Generate warehouse Id
   let warehouseId;
 
@@ -210,12 +199,6 @@ router.get('/:warehouseId', async (req, res) => {
 
 //Edit user by warehouseId
 router.put('/:warehouseId', allowAccess(['admin']), async (req, res) => {
-  //Validation
-  // const { error } = editWarehouseValidation(req.body);
-  // if (error) {
-  //   return res.status(400).send({ errors: error.details });
-  // }
-
   const address = {
     address: req.body.address,
     zipCode: req.body.zipCode,
@@ -258,7 +241,7 @@ router.delete('/:warehouseId', allowAccess(['admin']), async (req, res) => {
       [req.params.warehouseId]
     );
     if (response.rowCount === 0) {
-      return res.send({
+      return res.status(204).send({
         errors: [{ message: `${req.params.warehouseId} not exist` }],
       });
     }

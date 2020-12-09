@@ -23,7 +23,7 @@ app.use('/api/search', require('./routes/searchRouter'));
 app.get('/', (req, res) => {
   return res.send({
     message: 'Welcome to WMS backend',
-    version: 0.3,
+    version: 1.4,
     status: 'Up and Running',
   });
 });
